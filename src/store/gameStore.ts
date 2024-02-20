@@ -61,7 +61,7 @@ const initialState: TGameState = {
   emptyCellsAmount: gameModes[0].fieldSize.x * gameModes[0].fieldSize.y - gameModes[0].bombsAmount,
   time: gameModes[0].time,
   scoreTables: {
-    'Easy': [{name: 'Вася', time: 9000}],
+    'Easy': [],
     'Medium': [],
     'Hard': []
   }

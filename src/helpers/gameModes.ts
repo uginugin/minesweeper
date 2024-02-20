@@ -8,7 +8,7 @@ export const gameModes: TGameModeParams[] = [
       y: 8
     },
     time: 10 * 60 * 1000, //10 min
-    bombsAmount: 2
+    bombsAmount: 9
   },
   {
     name: 'Medium',
