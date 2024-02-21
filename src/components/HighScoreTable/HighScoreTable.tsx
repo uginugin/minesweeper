@@ -9,7 +9,7 @@ const HighScoreTable: FC<{ name: TGameModeNames }> = ({ name }) => {
 
   return (
     <div className='mt-4'>
-      <h3 className='text-xl md:text-3xl font-medium px-[10px]'>{name}</h3>
+      <h3 className='text-xl md:text-3xl font-medium'>{name}</h3>
       <div className='mt-2'>
         <table
           className='border-solid border-[10px] rounded-md border-[#6b6b6b] w-full table-fixed'

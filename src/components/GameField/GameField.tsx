@@ -8,6 +8,7 @@ import Cell from '../Cell/Cell'
 const GameField = () => {
 
   // ------------------------- Support Functions ----------------------------
+
   const plantBombsAndPasteDigits = (firstClickedX: number, firstClickedY: number) => {
     const gameFieldCopy = structuredClone(gameField)
 
@@ -228,7 +229,7 @@ const GameField = () => {
   }, [])
   //чтобы при обновлении игра сбрасывалась, если перед этим не была на паузе
 
-  const gridCellSize = windowSize.width > 768 ? '30px' : '1fr'
+  const gridCellSize = windowSize.width > 1024 ? '2rem' : '1fr'
 
   return (
     <>
