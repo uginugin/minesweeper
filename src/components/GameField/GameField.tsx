@@ -94,7 +94,9 @@ const GameField = () => {
       subOpenCell(x, y)
       decreaseEmptyCellsAmount(openedCellsCounter)
     } else {
-      newField[y][x].helpIconIndex = 0
+      const currentCell = newField[y][x]
+      if (currentCell.helpIconIndex === flagIndex) changeBombsAmount(1)
+      currentCell.helpIconIndex = 0
     }
     updateGameField(newField)
   }
