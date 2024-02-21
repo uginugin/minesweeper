@@ -11,7 +11,7 @@ const Timer = () => {
   const setGameStatus = useGameStore(store => store.setGameStatus)
 
   const [timer, setTimer] = useState(stateTime)
-  const timeInterval = useRef<undefined | number>(undefined);
+  const timeInterval = useRef<undefined | NodeJS.Timeout>(undefined);
 
   useEffect(() => {
     gameStatus === STARTED || gameStatus === RUNNING ? startTimer() : pauseTimer()

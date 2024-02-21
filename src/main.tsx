@@ -6,7 +6,7 @@ import { BrowserRouter } from 'react-router-dom'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={process.env.NODE_ENV==='production' ? '/minesweeper/' : '/'}>
       <App />
     </BrowserRouter>
   </React.StrictMode>

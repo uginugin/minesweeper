@@ -9,10 +9,10 @@ const HighScoreTable: FC<{ name: TGameModeNames }> = ({ name }) => {
 
   return (
     <div className='mt-4'>
-      <h3 className='text-xl md:text-3xl font-medium ml-4'>{name}</h3>
+      <h3 className='text-xl md:text-3xl font-medium px-[10px]'>{name}</h3>
       <div className='mt-2'>
         <table
-          className='border-solid border-[10px] rounded-md border-[#6b6b6b] w-full'
+          className='border-solid border-[10px] rounded-md border-[#6b6b6b] w-full table-fixed'
         >
           <thead>
             <tr>
@@ -33,7 +33,7 @@ const HighScoreTable: FC<{ name: TGameModeNames }> = ({ name }) => {
               return (
                 <tr key={i}>
                   <td className={tableClassName}>{v + 1}</td>
-                  <td className={tableClassName}>{tableRows[v]?.name}</td>
+                  <td className={tableClassName + ' overflow-x-hidden'}>{tableRows[v]?.name}</td>
                   <td className={tableClassName}>
                     {timer
                       ? `${minutes}:${zeroPad(seconds, 2)}.${zeroPad(ms, 2)}`
