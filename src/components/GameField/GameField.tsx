@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useState } from 'react'
-import { useGameStore } from '../../store/gameStore'
+import { scoreTablesLength, useGameStore } from '../../store/gameStore'
 import { FLAG, helpCellIcons } from '../../helpers/cellIcons'
 import { LOSE, PAUSED, PLANTED, READY, RUNNING, STARTED, WIN } from '../../helpers/gameStates'
 import NameInput from '../NameInput/NameInput'
@@ -55,6 +55,8 @@ const GameField = () => {
       return
     }
     
+    // если же мы не проиграли, 
+    // то создаем массив нового поля и меняем ссылку текущей ячейки на ячейку в нем
     const newField = structuredClone(gameField)
     currentCell = newField[y][x]
     // если нет вспомогательной иконки, то начинаем "открытие",
@@ -216,13 +218,16 @@ const GameField = () => {
   useEffect(() => {
     if (gameStatus === WIN) {
       //вытаскиваем последнюю строчку в таблице
-      const compareTime = useGameStore.getState().scoreTables[gameMode.name].slice(-1)[0]?.time
-      if (compareTime) {
-        if (gameMode.time - time < compareTime) {
+      const table = useGameStore.getState().scoreTables[gameMode.name]
+      const compareRow = table.slice(-1)[0]
+      if (table.length < scoreTablesLength) {
+        setShowNameModal(true)
+        return
+      }
+      if (compareRow?.time) {
+        if (gameMode.time - time < compareRow?.time) {
           setShowNameModal(true)
         }
-      } else {
-        setShowNameModal(true)
       }
     }
   }, [time])
