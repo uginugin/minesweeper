@@ -172,6 +172,7 @@ const GameField = () => {
   const flagIndex = Object.keys(helpCellIcons).indexOf(FLAG)
 
   const [showNameModal, setShowNameModal] = useState(false)
+  console.log(showNameModal)
 
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
