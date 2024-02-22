@@ -3,27 +3,23 @@ import { TFirstClickCellParams } from '../../types/firstClickCellParams'
 import { TGameFieldCell } from '../../types/gameFieldCell';
 import mine from '../../assets/images/mine.svg';
 import { useGameStore } from '../../store/gameStore';
-import { cellDigits, helpCellIcons } from '../../helpers/cellIcons';
+import { cellDigits, helpCellIcons, wrongFlag } from '../../helpers/cellIcons';
 import { LOSE, PAUSED, WIN } from '../../helpers/gameStates';
 
 type CellProps = {
   cellData: TGameFieldCell
   firstClick: TFirstClickCellParams,
   setFirstClick: (params: TFirstClickCellParams) => void,
-  isOpened: boolean,
   openCell: (x: number, y: number) => void,
   setHelperIcon: (x: number, y: number) => void,
-  helpIconIndex: number
 }
 
 const Cell: FC<CellProps> = ({
   cellData,
   firstClick,
   setFirstClick,
-  isOpened,
   openCell,
   setHelperIcon,
-  helpIconIndex
 }) => {
 
   const gameStatus = useGameStore(store => store.gameStatus)
@@ -36,7 +32,11 @@ const Cell: FC<CellProps> = ({
     })
   }
 
-  const helpIcon = Object.values(helpCellIcons)[helpIconIndex]
+  const helpIcon = Object.values(helpCellIcons)[cellData.helpIconIndex]
+  const cellDone = gameStatus === PAUSED
+  || gameStatus === WIN
+  || gameStatus === LOSE
+  || cellData.isOpened
 
   const onClickHandler: React.MouseEventHandler<HTMLDivElement> = (e) => {
     if (!firstClick.hasAlreadyBeen) {
@@ -44,10 +44,7 @@ const Cell: FC<CellProps> = ({
       return
     }
 
-    if (gameStatus === PAUSED ||
-      cellData.isOpened ||
-      gameStatus === WIN ||
-      gameStatus === LOSE) {
+    if (cellDone) {
       e.preventDefault()
     } else {
       openCell(cellData.x, cellData.y)
@@ -56,11 +53,7 @@ const Cell: FC<CellProps> = ({
 
   const onRightClickHandler: React.MouseEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault()
-    if (!(cellData.isOpened
-      || gameStatus === PAUSED
-      || gameStatus === WIN
-      || gameStatus === LOSE
-    ) && !isOpened && firstClick.hasAlreadyBeen) {
+    if (!cellDone && firstClick.hasAlreadyBeen) {
       setHelperIcon(cellData.x, cellData.y)
     }
   }
@@ -73,8 +66,9 @@ const Cell: FC<CellProps> = ({
       className={'select-none aspect-square w-full border-2 border-solid border-black border-opacity-60'}
       onClick={(e) => onClickHandler(e)}
       onContextMenu={(e) => onRightClickHandler(e)}
-    >
-      {cellData.isOpened
+    >{ cellData.wrongFlag
+      ? <img className={'w-full'} src={wrongFlag} alt='X - wrong flag' />
+      : cellData.isOpened
         ?
         <>
           {cellData.withBomb
@@ -92,8 +86,8 @@ const Cell: FC<CellProps> = ({
           }
         </>
         :
-        helpIcon && <img className={'w-full'} src={helpIcon} alt={Object.keys(helpCellIcons)[helpIconIndex]}/>
-      }
+        helpIcon && <img className={'w-full'} src={helpIcon} alt={Object.keys(helpCellIcons)[cellData.helpIconIndex]}/>
+    }
     </div>
   )
 }

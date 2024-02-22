@@ -4,6 +4,7 @@ import { FLAG, helpCellIcons } from '../../helpers/cellIcons'
 import { LOSE, PAUSED, PLANTED, READY, RUNNING, STARTED, WIN } from '../../helpers/gameStates'
 import NameInput from '../NameInput/NameInput'
 import Cell from '../Cell/Cell'
+import { TGameFieldCell } from '../../types/gameFieldCell'
 
 const GameField = () => {
 
@@ -23,9 +24,12 @@ const GameField = () => {
 
     for (let i = 0; i < gameMode.bombsAmount; i++) {
       const randomIndex = Math.floor(Math.random() * coords.length);
+      //достаем случайный элемент без бомбы
       const bombCell = gameFieldCopy[coords[randomIndex].y][coords[randomIndex].x]
       bombCell.withBomb = true
+      //убираем этот элемент из массива доступных к заполнению
       coords.splice(coords.findIndex(v => v.x === bombCell.x && v.y === bombCell.y), 1)
+      // проходимся по клеткам вокруг для изменения bombsAround
       for (let row = 0; row < 3; row++) {
         const currentRow = gameFieldCopy[bombCell.y - 1 + row]
         if (currentRow) {
@@ -42,27 +46,40 @@ const GameField = () => {
   }
 
   const openCell = (x: number, y: number) => {
+    let openedCellsCounter = 0
+    let changedBombsAmountCounter = 0
+    // Если открыли ячейку с бомбой - проиграли (lose)
+    const currentCell = gameField[y][x]
+    if (currentCell.withBomb) {
+      setGameStatus(LOSE)
+      return
+    }
+    
     const newField = structuredClone(gameField)
+    // если нет вспомогательной иконки, то начинаем "открытие",
+    // если иконка есть, то сбрасываем ее и не открываем ячейку
+    if (currentCell.helpIconIndex === 0) {
+      subOpenCell(x, y, newField)
+      if (openedCellsCounter) decreaseEmptyCellsAmount(openedCellsCounter)
+      if (changedBombsAmountCounter) changeBombsAmount(changedBombsAmountCounter)
+    } else {
+      if (currentCell.helpIconIndex === flagIndex) changeBombsAmount(1)
+      currentCell.helpIconIndex = 0
+    }
+    updateGameField(newField)
 
 
     // функция, рекурсивно открывающая ячейки
-    let openedCellsCounter = 0;
-    const subOpenCell = (subX: number, subY: number) => {
+    function subOpenCell(subX: number, subY: number, newField: TGameFieldCell[][]) {
       const currentCell = newField[subY][subX]
+
       currentCell.isOpened = true
-
-      // Если открыли ячейку с бомбой - проиграли (lose)
-      if (currentCell.withBomb) {
-        setGameStatus(LOSE)
-        return
-      }
-
       openedCellsCounter++
 
-      // если ячейка была с флагом, то прибавляем обратно число оставшихся бомб
+      // если ячейка была с флагом, то увеличиваем обратно число оставшихся бомб
       if (currentCell.helpIconIndex === flagIndex) {
         currentCell.helpIconIndex = 0
-        changeBombsAmount(1)
+        changedBombsAmountCounter++
       }
       // если вокруг нет бомб и ячейка без бомбы, 
       // начинаем рекурсивное сканирование ячеек вокруг
@@ -75,30 +92,18 @@ const GameField = () => {
               // проверив, существуют ли поля, проверяем ячейку. 
               // если она еще не открыта и не равна "исходной" ячейке, 
               // то рекурсивно открываем ее
-              if (
-                nextCell &&
+              if (nextCell &&
                 !nextCell.isOpened &&
+                // !nextCell.withBomb &&  // можно пропустить, т.к. bombsAround у ячейки с бомбой тоже есть, а это проверяется выше
                 !(nextCell.x === subX && nextCell.y === subY)
               ) {
-                subOpenCell(nextCell.x, nextCell.y)
+                subOpenCell(nextCell.x, nextCell.y, newField)
               }
             }
           }
         }
       }
     }
-
-    // если нет вспомогательной иконки, то начинаем "открытие",
-    // если иконка есть, то сбрасываем ее и не открываем ячейку
-    if (newField[y][x].helpIconIndex === 0) {
-      subOpenCell(x, y)
-      decreaseEmptyCellsAmount(openedCellsCounter)
-    } else {
-      const currentCell = newField[y][x]
-      if (currentCell.helpIconIndex === flagIndex) changeBombsAmount(1)
-      currentCell.helpIconIndex = 0
-    }
-    updateGameField(newField)
   }
 
   const setHelperIcon = (x: number, y: number) => {
@@ -122,13 +127,18 @@ const GameField = () => {
     updateGameField(newField)
   }
 
-  const showAllBombs = () => {
+  const showAllBombsAndRemoveWrongFlags = () => {
     const gameFieldCopy = structuredClone(gameField)
     for (let row = 0; row < gameMode.fieldSize.y; row++) {
       for (let column = 0; column < gameMode.fieldSize.x; column++) {
         const currentCell = gameFieldCopy[row][column]
         if (currentCell.withBomb && currentCell.helpIconIndex !== flagIndex) {
           currentCell.isOpened = true
+          continue
+        }
+        if (currentCell.helpIconIndex === flagIndex && !currentCell.withBomb) {
+          currentCell.wrongFlag = true
+          continue
         }
       }
     }
@@ -182,7 +192,7 @@ const GameField = () => {
           openCell(firstClick.x, firstClick.y)
           break;
         case LOSE:
-          showAllBombs()
+          showAllBombsAndRemoveWrongFlags()
           break;
         default:
           return
@@ -240,7 +250,7 @@ const GameField = () => {
           gridTemplateRows: `repeat(${gameMode.fieldSize.y}, ${gridCellSize})`,
           gridTemplateColumns: `repeat(${gameMode.fieldSize.x}, ${gridCellSize})`
         }}
-        className='grid justify-center'>
+          className='grid justify-center'>
           {gameField.map((row) => row.map((cell) => {
             return (
               <Cell
@@ -248,10 +258,8 @@ const GameField = () => {
                 cellData={gameField[cell.y][cell.x]}
                 firstClick={firstClick}
                 setFirstClick={setFirstClick}
-                isOpened={cell.isOpened}
                 openCell={openCell}
                 setHelperIcon={setHelperIcon}
-                helpIconIndex={cell.helpIconIndex}
               />
             )
           }))}

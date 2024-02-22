@@ -17,7 +17,8 @@ const getEmptyField = (gameMode: TGameModeParams): TGameFieldCell[][] => {
         withBomb: false,
         bombsAround: 0,
         isOpened: false,
-        helpIconIndex: 0
+        helpIconIndex: 0,
+        wrongFlag: false
       })
     }
   }

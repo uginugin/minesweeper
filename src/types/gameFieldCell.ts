@@ -4,5 +4,6 @@ export type TGameFieldCell = {
   withBomb: boolean,
   bombsAround: number,
   isOpened: boolean,
-  helpIconIndex: number
+  helpIconIndex: number,
+  wrongFlag: boolean,
 }

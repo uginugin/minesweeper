@@ -7,19 +7,22 @@ import six from '../assets/images/digits/numeric-6.svg'
 import seven from '../assets/images/digits/numeric-7.svg'
 import eight from '../assets/images/digits/numeric-8.svg'
 
-import flag from '../assets/images/flag.svg'
-import question from '../assets/images/question-mark.svg'
+import flagIcon from '../assets/images/flag.svg'
+import questionIcon from '../assets/images/question-mark.svg'
+import wrongFlagIcon from '../assets/images/wrong-flag.svg'
 
 type THelpCellIcon = {
   [key: string]: string | undefined
 }
 
-export const FLAG = 'flag' 
+export const FLAG = 'FLAG' 
 
 export const helpCellIcons: THelpCellIcon = {
   'nothing': undefined,
-  [FLAG]: flag,
-  'question': question
+  [FLAG]: flagIcon,
+  'question': questionIcon
 }
+
+export const wrongFlag = wrongFlagIcon
 
 export const cellDigits = [one, two, free, four, five, six, seven, eight]
