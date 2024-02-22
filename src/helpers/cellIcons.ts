@@ -18,7 +18,7 @@ type THelpCellIcon = {
 export const FLAG = 'FLAG' 
 
 export const helpCellIcons: THelpCellIcon = {
-  'nothing': undefined,
+  'nothing': undefined, // всегда должна быть первой !!!!!!!!!
   [FLAG]: flagIcon,
   'question': questionIcon
 }

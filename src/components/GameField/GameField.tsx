@@ -49,13 +49,14 @@ const GameField = () => {
     let openedCellsCounter = 0
     let changedBombsAmountCounter = 0
     // Если открыли ячейку с бомбой - проиграли (lose)
-    const currentCell = gameField[y][x]
-    if (currentCell.withBomb) {
+    let currentCell = gameField[y][x]
+    if (currentCell.withBomb && currentCell.helpIconIndex === 0) {
       setGameStatus(LOSE)
       return
     }
     
     const newField = structuredClone(gameField)
+    currentCell = newField[y][x]
     // если нет вспомогательной иконки, то начинаем "открытие",
     // если иконка есть, то сбрасываем ее и не открываем ячейку
     if (currentCell.helpIconIndex === 0) {
