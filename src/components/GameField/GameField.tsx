@@ -54,7 +54,7 @@ const GameField = () => {
       setGameStatus(LOSE)
       return
     }
-    
+
     // если же мы не проиграли, 
     // то создаем массив нового поля и меняем ссылку текущей ячейки на ячейку в нем
     const newField = structuredClone(gameField)
@@ -172,16 +172,47 @@ const GameField = () => {
   const flagIndex = Object.keys(helpCellIcons).indexOf(FLAG)
 
   const [showNameModal, setShowNameModal] = useState(false)
-  console.log(showNameModal)
 
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
   });
+  const gridCellSize = windowSize.width > 1024 ? '2rem' : '1fr'
+
+
+  //чтобы при обновлении игра сбрасывалась, если перед этим не была на паузе
+  useEffect(() => {
+    if (gameStatus !== PAUSED) {
+      resetGame()
+    }
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+    window.addEventListener("resize", handleResize);
+    () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   //если случился первый клик, то заполняем бомбами
   useLayoutEffect(() => {
     if (firstClick.hasAlreadyBeen) {
+      if (gameStatus === WIN) {
+        //вытаскиваем последнюю строчку в таблице
+        const table = useGameStore.getState().scoreTables[gameMode.name]
+        const compareRow = table.slice(-1)[0]
+        if (table.length < scoreTablesLength) {
+          setShowNameModal(true)
+          return
+        }
+        if (compareRow?.time) {
+          if (gameMode.time - time < compareRow?.time) {
+            setShowNameModal(true)
+          }
+        }
+        return
+      }
       switch (gameStatus) {
         //начинаем игру, если она начата кликом на поле
         case READY:
@@ -205,6 +236,7 @@ const GameField = () => {
     } else {
       setShowNameModal(false)
     }
+
   }, [firstClick, gameStatus])
 
   //отслеживаем количество неоткрытых пустых клеток
@@ -215,40 +247,7 @@ const GameField = () => {
     }
   }, [emptyCellsAmount])
 
-  // сравнение и запись результата в таблицу
-  useEffect(() => {
-    if (gameStatus === WIN) {
-      //вытаскиваем последнюю строчку в таблице
-      const table = useGameStore.getState().scoreTables[gameMode.name]
-      const compareRow = table.slice(-1)[0]
-      if (table.length < scoreTablesLength) {
-        setShowNameModal(true)
-        return
-      }
-      if (compareRow?.time) {
-        if (gameMode.time - time < compareRow?.time) {
-          setShowNameModal(true)
-        }
-      }
-    }
-  }, [time])
 
-  useEffect(() => {
-    if (gameStatus !== PAUSED) {
-      resetGame()
-    }
-    function handleResize() {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    }
-    window.addEventListener("resize", handleResize);
-    () => window.removeEventListener('resize', handleResize)
-  }, [])
-  //чтобы при обновлении игра сбрасывалась, если перед этим не была на паузе
-
-  const gridCellSize = windowSize.width > 1024 ? '2rem' : '1fr'
 
   return (
     <>
